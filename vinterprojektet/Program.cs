@@ -7,6 +7,8 @@ Texture2D backgroundImg = Raylib.LoadTexture("background.png");
 Texture2D avatarImg = Raylib.LoadTexture("avatar.png");
 Texture2D storeImg = Raylib.LoadTexture("store.png");
 Texture2D insideStoreImg = Raylib.LoadTexture("insidestore.png");
+Texture2D farmWithSeeds = Raylib.LoadTexture("farmWithSeeds.png");
+Texture2D farmWithWheat = Raylib.LoadTexture("farmWithWheat.png");
 
 Rectangle soilBackground = new Rectangle(800, 180, 360, 340); //fields
 Rectangle storeDoor = new Rectangle(210, 175, 70, 20); //door hitbox
@@ -16,13 +18,13 @@ Rectangle sellButton = new Rectangle(580, 450, 200, 100); // in store button
 Rectangle leaveButton = new Rectangle(30, 40, 280, 75); // in store button (in progress)
 
 
-
 int playerMoney = 100;
 int playerWheat = 5;
 
-float speed = 5;
+float speed = 3;
 
-string currentScene = "farm"; //farm, store, start
+
+string currentScene = "farm"; //start, instructions, farm, store
 
 List<soil> soils = new List<soil>();
 soils.Add(new soil());
@@ -52,25 +54,24 @@ soils[5].rect.y = 400;
 
 while (!Raylib.WindowShouldClose())
 {
-    // logik
+    System.Numerics.Vector2 mousePos = Raylib.GetMousePosition();
+    // logic
     if (currentScene == "farm")
     {
-
-
-        if (Raylib.IsKeyDown(KeyboardKey.KEY_D) & playerRect.x < 1166)
+        if (Raylib.IsKeyDown(KeyboardKey.KEY_D) && playerRect.x < 1166)
         {
             playerRect.x += speed;
         }
-        else if (Raylib.IsKeyDown(KeyboardKey.KEY_A) & playerRect.x > 2)
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_A) && playerRect.x > 2)
         {
             playerRect.x -= speed;
         }
 
-        if (Raylib.IsKeyDown(KeyboardKey.KEY_S) & playerRect.y < 534)
+        if (Raylib.IsKeyDown(KeyboardKey.KEY_S) && playerRect.y < 534)
         {
             playerRect.y += speed;
         }
-        else if (Raylib.IsKeyDown(KeyboardKey.KEY_W) & playerRect.y > 2)
+        else if (Raylib.IsKeyDown(KeyboardKey.KEY_W) && playerRect.y > 2)
         {
             playerRect.y -= speed;
         }
@@ -79,14 +80,29 @@ while (!Raylib.WindowShouldClose())
         {
             currentScene = "store";
         }
+
+        for (int s = 0; s < soils.Count; s++)
+        {
+            if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && Raylib.CheckCollisionPointRec(mousePos, soils[s].rect)
+            && soils[s].state == 0)
+            {
+                soils[s].image = farmWithSeeds;
+                soils[s].state++;
+            }
+
+            soils[s].timer += Raylib.GetFrameTime();
+            if (soils[s].timer > 5 && soils[s].state != 0)
+            {
+                soils[s].image = farmWithWheat;
+            }
+        }
     }
 
     else if (currentScene == "store")
     {
-        System.Numerics.Vector2 mousePos = Raylib.GetMousePosition();
         bool wannaSell = Raylib.CheckCollisionPointRec(mousePos, sellButton);
 
-        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) & playerWheat > 0 & wannaSell == true)
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && playerWheat > 0 && wannaSell == true)
         {
             playerMoney += 10;
             playerWheat -= 1;
@@ -95,7 +111,7 @@ while (!Raylib.WindowShouldClose())
 
         bool wannaLeave = Raylib.CheckCollisionPointRec(mousePos, leaveButton);
 
-        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) & wannaLeave == true)
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && wannaLeave == true)
         {
             currentScene = "farm";
             playerRect.y = 200;
@@ -104,7 +120,7 @@ while (!Raylib.WindowShouldClose())
     }
 
 
-    //grafik
+    //graphics
     Raylib.BeginDrawing();
 
     if (currentScene == "farm")

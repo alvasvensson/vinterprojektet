@@ -4,6 +4,8 @@ public class soil
 
     public Rectangle rect;
     public Texture2D image;
+    public float timer = 0;
+    public int state = 0;
     public soil()
     {
         image = Raylib.LoadTexture("farm.png");
