@@ -3,173 +3,111 @@
 Raylib.InitWindow(1200, 600, "Farming Sim");
 Raylib.SetTargetFPS(60);
 
-Texture2D backgroundImg = Raylib.LoadTexture("background.png");
-Texture2D avatarImg = Raylib.LoadTexture("avatar.png");
-Texture2D storeImg = Raylib.LoadTexture("store.png");
-Texture2D insideStoreImg = Raylib.LoadTexture("insidestore.png");
-Texture2D farmWithSeeds = Raylib.LoadTexture("farmWithSeeds.png");
-Texture2D farmWithWheat = Raylib.LoadTexture("farmWithWheat.png");
-
-Rectangle soilBackground = new Rectangle(800, 180, 360, 340); //fields
+Rectangle leaveButton = new Rectangle(30, 40, 280, 75); // in store button 
 Rectangle storeDoor = new Rectangle(210, 175, 70, 20); //door hitbox
-Rectangle playerRect = new Rectangle(600, 260, avatarImg.width, avatarImg.height); //player hitbox
+Rectangle seedStoreDoor = new Rectangle(530, 175, 70, 20); //seedstore door hitbox
+Rectangle playButton = new Rectangle(525, 450, 150, 100);
+Rectangle infoButton = new Rectangle(50, 450, 100, 100);
 
-Rectangle sellButton = new Rectangle(580, 450, 200, 100); // in store button
-Rectangle leaveButton = new Rectangle(30, 40, 280, 75); // in store button (in progress)
+string currentScene = "instructions"; //start, instructions, farm, store, seedStore
 
-
-int playerMoney = 100;
-int playerWheat = 5;
-
-float speed = 3;
-
-
-string currentScene = "farm"; //start, instructions, farm, store
-
-List<soil> soils = new List<soil>();
-soils.Add(new soil());
-soils.Add(new soil());
-soils.Add(new soil());
-soils.Add(new soil());
-soils.Add(new soil());
-soils.Add(new soil());
-
-soils[1].rect.x = 930;
-soils[1].rect.y = 200;
-
-soils[2].rect.x = 1040;
-soils[2].rect.y = 200;
-
-soils[3].rect.x = 820;
-soils[3].rect.y = 400;
-
-soils[4].rect.x = 930;
-soils[4].rect.y = 400;
-
-soils[5].rect.x = 1040;
-soils[5].rect.y = 400;
-
-
+//classes 
+Farm theFarm = new Farm();
+Store theStore = new Store();
+SeedStore theSeedStore = new SeedStore();
+Instructions theInstructions = new Instructions();
 
 
 while (!Raylib.WindowShouldClose())
 {
-    System.Numerics.Vector2 mousePos = Raylib.GetMousePosition();
     // logic
+    // lets the player change the scene and runs the update methods for each scene
+    System.Numerics.Vector2 mousePos = Raylib.GetMousePosition();
     if (currentScene == "farm")
     {
-        if (Raylib.IsKeyDown(KeyboardKey.KEY_D) && playerRect.x < 1166)
-        {
-            playerRect.x += speed;
-        }
-        else if (Raylib.IsKeyDown(KeyboardKey.KEY_A) && playerRect.x > 2)
-        {
-            playerRect.x -= speed;
-        }
+        theFarm.Update();
 
-        if (Raylib.IsKeyDown(KeyboardKey.KEY_S) && playerRect.y < 534)
-        {
-            playerRect.y += speed;
-        }
-        else if (Raylib.IsKeyDown(KeyboardKey.KEY_W) && playerRect.y > 2)
-        {
-            playerRect.y -= speed;
-        }
-
-        if (Raylib.CheckCollisionRecs(storeDoor, playerRect))
+        if (Raylib.CheckCollisionRecs(storeDoor, theFarm.playerRect))
         {
             currentScene = "store";
         }
-
-        for (int s = 0; s < soils.Count; s++)
+        if (Raylib.CheckCollisionRecs(seedStoreDoor, theFarm.playerRect))
         {
-            if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && Raylib.CheckCollisionPointRec(mousePos, soils[s].rect)
-            && soils[s].state == 0)
-            {
-                soils[s].image = farmWithSeeds;
-                soils[s].state++;
-            }
+            currentScene = "seedStore";
+        }
 
-            soils[s].timer += Raylib.GetFrameTime();
-            if (soils[s].timer > 5 && soils[s].state != 0)
-            {
-                soils[s].image = farmWithWheat;
-            }
+        bool wantInfo = Raylib.CheckCollisionPointRec(mousePos, infoButton);
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && wantInfo == true)
+        {
+            currentScene = "instructions";
         }
     }
 
     else if (currentScene == "store")
     {
-        bool wannaSell = Raylib.CheckCollisionPointRec(mousePos, sellButton);
-
-        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && playerWheat > 0 && wannaSell == true)
-        {
-            playerMoney += 10;
-            playerWheat -= 1;
-        }
-
+        theStore.Update();
 
         bool wannaLeave = Raylib.CheckCollisionPointRec(mousePos, leaveButton);
 
         if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && wannaLeave == true)
         {
             currentScene = "farm";
-            playerRect.y = 200;
+            theFarm.playerRect.y = 200;
         }
-
     }
 
+    else if (currentScene == "seedStore")
+    {
+        theSeedStore.Update();
+
+        bool wannaLeave = Raylib.CheckCollisionPointRec(mousePos, leaveButton);
+
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && wannaLeave == true)
+        {
+            currentScene = "farm";
+            theFarm.playerRect.y = 200;
+        }
+    }
+
+    else if (currentScene == "instructions")
+    {
+        bool wannaPlay = Raylib.CheckCollisionPointRec(mousePos, playButton);
+        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && wannaPlay == true)
+        {
+            currentScene = "farm";
+            theFarm.playerRect.y = 200;
+        }
+    }
 
     //graphics
     Raylib.BeginDrawing();
 
+    //runs the draw methods for each scene
+
     if (currentScene == "farm")
     {
-
-        Raylib.DrawTexture(backgroundImg, 0, 0, Color.WHITE);
-        Raylib.DrawRectangleRec(storeDoor, Color.BROWN); // door hitbox, hid behind the pictrure of the door
-        Raylib.DrawTexture(storeImg, 30, 0, Color.WHITE);
-
-        Raylib.DrawRectangleRec(soilBackground, Color.BROWN);
-
-        Raylib.DrawText($"Wheat = {playerWheat}", 1000, 30, 20, Color.BLACK);
-        Raylib.DrawText($"Money = {playerMoney}", 1000, 10, 20, Color.BLACK);
-
-        foreach (soil e in soils)
-        {
-            e.Draw();
-        }
-
-        Raylib.DrawTexture(avatarImg,
-           (int)playerRect.x,
-           (int)playerRect.y,
-           Color.WHITE);
+        theFarm.Draw();
     }
 
     if (currentScene == "store")
     {
-        Raylib.DrawTexture(insideStoreImg, 0, 0, Color.WHITE);
-        Raylib.DrawText("Hi and welcome to the bakery!", 565, 20, 19, Color.BLACK);
-        Raylib.DrawText("Do you wanna sell us", 610, 45, 19, Color.BLACK);
-        Raylib.DrawText("wheat so we can bake", 610, 70, 19, Color.BLACK);
-        Raylib.DrawText("our delicious goods?", 610, 95, 19, Color.BLACK);
-
-        Raylib.DrawText("1 wheat for 10 money", 550, 410, 25, Color.BLACK);
-        Raylib.DrawRectangleRec(sellButton, Color.GRAY);
-        Raylib.DrawText("SELL", 630, 480, 40, Color.BLACK);
-
-        Raylib.DrawRectangleRec(leaveButton, Color.GRAY);
-        Raylib.DrawText("LEAVE STORE", 60, 60, 30, Color.BLACK);
-
-        Raylib.DrawRectangle(990, 5, 200, 55, Color.BEIGE);
-        Raylib.DrawText($"Money = {playerMoney}", 1000, 10, 20, Color.BLACK);
-        Raylib.DrawText($"Wheat = {playerWheat}", 1000, 30, 20, Color.BLACK);
+        theStore.Draw();
     }
 
     if (currentScene == "start")
     {
 
     }
+    if (currentScene == "seedStore")
+    {
+        theSeedStore.Draw();
+    }
+
+    if (currentScene == "instructions")
+    {
+        theInstructions.Draw();
+    }
 
     Raylib.EndDrawing();
 }
+
