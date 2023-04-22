@@ -1,4 +1,5 @@
-﻿using Raylib_cs;
+﻿global using Raylib_cs;
+global using System.Numerics;
 
 Raylib.InitWindow(1200, 600, "Farming Sim");
 Raylib.SetTargetFPS(60);
@@ -71,12 +72,7 @@ while (!Raylib.WindowShouldClose())
 
     else if (currentScene == "instructions")
     {
-        bool wannaPlay = Raylib.CheckCollisionPointRec(mousePos, playButton);
-        if (Raylib.IsMouseButtonPressed(MouseButton.MOUSE_BUTTON_LEFT) && wannaPlay == true)
-        {
-            currentScene = "farm";
-            theFarm.playerRect.y = 200;
-        }
+        currentScene = Scene.InstructionsScene(mousePos, playButton, currentScene, theFarm, theInstructions);
     }
 
     //graphics

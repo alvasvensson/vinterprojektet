@@ -22,7 +22,7 @@ public class Store : Scene
         }
     }
 
-    //graphics
+    //graphics for the store
     public void Draw()
     {
         //background picture

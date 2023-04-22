@@ -3,8 +3,6 @@ public class Farm : Scene
 {
 
     //instans variables 
-
-
     Texture2D avatarImg = Raylib.LoadTexture("avatar.png"); //player image 
     Texture2D backgroundImg = Raylib.LoadTexture("background.png"); //farm background image
     Texture2D storeImg = Raylib.LoadTexture("store.png"); // bakery(store) image
@@ -15,20 +13,21 @@ public class Farm : Scene
     Rectangle infoButton = new Rectangle(50, 450, 100, 100); //information button
     public Rectangle playerRect; //player hitbox
 
-    // list for soils where wheat can be planted
-    List<soil> soils = new List<soil>();
+    // array that holds 6 squares of soils, array because the amount of soils is always the same, none gets removed or added.
+    soil[] soils = new soil[6];
+
     //variable for player speed
     float speed = 3;
 
-    //adds soils to the list
+    //adds soils to the array
     public Farm() //constructor
     {
         playerRect = new Rectangle(600, 260, avatarImg.width, avatarImg.height); //player hitbox
 
         for (int i = 0; i < 3; i++)
         {
-            soils.Add(new soil(820 + (i * 110), 200));
-            soils.Add(new soil(820 + (i * 110), 400));
+            soils[i] = new soil(820 + (i * 110), 200);
+            soils[i + 3] = new soil(820 + (i * 110), 400);
         }
     }
 
@@ -55,7 +54,7 @@ public class Farm : Scene
         }
 
         // runs every soils update method
-        for (int s = 0; s < soils.Count; s++)
+        for (int s = 0; s < soils.Length; s++)
         {
             soils[s].Update(playerRect, soilBackground);
         }
@@ -63,6 +62,7 @@ public class Farm : Scene
 
 
     //graphics
+    // ritar allt som ska synas i farm-scenen
     public void Draw()
     {
         Raylib.DrawTexture(backgroundImg, 0, 0, Color.WHITE);
@@ -78,7 +78,10 @@ public class Farm : Scene
         Raylib.DrawText($"Money = {playerMoney}", 1000, 10, 20, Color.BLACK);
         Raylib.DrawText($"Seeds = {playerSeeds}", 1000, 50, 20, Color.BLACK);
 
-        //draws each soil in the list of soil
+
+        Raylib.DrawText($"{farmName}", 800, 130, 30, Color.BLACK);
+
+        //draws each soil in the array of soil
         foreach (soil e in soils)
         {
             e.Draw();

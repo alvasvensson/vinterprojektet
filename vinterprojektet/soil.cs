@@ -21,6 +21,7 @@ public class soil
         rect = new Rectangle(x, y, 100, 100);
     }
 
+    //all logik för soils
     public void Update(Rectangle playerRect, Rectangle soilBackground)
     {
         Vector2 mousePos = Raylib.GetMousePosition();
@@ -37,7 +38,6 @@ public class soil
         {
             timer += Raylib.GetFrameTime();
         }
-
 
         if (timer > 5 && state == 1)
         {

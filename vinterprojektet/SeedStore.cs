@@ -22,7 +22,7 @@ public class SeedStore : Scene
         }
     }
 
-    //graphics
+    //graphics for the seedstore
     public void Draw()
     {
         //background picture
